@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>عرض صامولة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/base.css">
+<style>
+  /* صفحة الدخول: الفكرة الأساسية للمنتج في العنوان، ثم الأدوار الأربعة كقائمة بأفعالها، ثم الرحلة خطوة بخطوة. */
+  body { background: var(--surface); }
+  .wrap { max-width: 1180px; margin: 0 auto; padding-block: calc(20px + env(safe-area-inset-top, 0px)) 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 48px; }
+  .top .brand { font-size: 20px; }
+  .top .note { font-size: 12.5px; color: var(--muted); }
+  .hero { display: grid; gap: 18px; margin-bottom: 40px; max-width: 760px; }
+  .hero h1 { font-size: clamp(30px, 5.4vw, 56px); line-height: 1.12; font-weight: 700; letter-spacing: -0.02em; }
+  .hero p { font-size: 17px; color: var(--text); max-width: 62ch; }
+  .hero .meta { display: flex; gap: 8px; flex-wrap: wrap; }
+  .layout { display: grid; gap: 32px; }
+  .roles { display: grid; }
+  .role { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 20px 0; border-top: 1px solid var(--border); }
+  .role:last-child { border-bottom: 1px solid var(--border); }
+  .role .ico { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; background: var(--raised); }
+  .role .ico svg { width: 26px; height: 26px; }
+  .role h2 { font-size: 20px; font-weight: 600; line-height: 1.3; }
+  .role p { color: var(--muted); margin-top: 2px; }
+  .role .try { font-size: 13.5px; color: var(--text); margin-top: 6px; }
+  .role .go { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+  .role:hover h2 { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+  .journey { background: var(--ground); border-radius: 16px; padding: 24px; display: grid; gap: 16px; align-content: start; }
+  .journey h2 { font-size: 18px; font-weight: 600; }
+  .journey ol { margin: 0; padding-inline-start: 22px; display: grid; gap: 12px; }
+  .journey li::marker { font-weight: 600; color: var(--muted); }
+  .journey li b { font-weight: 600; }
+  .journey .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+  .data { margin-top: 48px; display: grid; gap: 20px; }
+  .data h2 { font-size: 22px; font-weight: 600; }
+  .data .cols { display: grid; gap: 24px; }
+  .data h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .data p, .data li { color: var(--text); }
+  .data ul { margin: 0; padding-inline-start: 18px; display: grid; gap: 6px; }
+  .foot { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; color: var(--muted); font-size: 13px; }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 48px; align-items: start; }
+    .journey { position: sticky; top: 24px; }
+    .data .cols { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 520px) { .role { grid-template-columns: 44px minmax(0, 1fr); } .role .ico { width: 44px; height: 44px; } .role .go { grid-column: 2; } .top { margin-bottom: 32px; } }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script src="assets/data.js"></script>
+<script src="assets/store.js"></script>
+<script src="assets/ui.js"></script>
+<script>
+(function () {
+  const { A, fmt, S, D } = Store; const U = UI; const root = document.getElementById('app');
+  function page() {
+    const st = Store.get(); const v = st.orders.filter((o) => o.groups.some((g) => g.state === 'VERIFYING' && g.supplier === D.meta.demoSupplier)).length;
+    const jobs = st.orders.flatMap((o) => o.groups).filter((g) => g.state === 'READY' && g.job && !g.job.courier).length;
+    const roles = [
+      ['customer.html', 'car', 'العميل', 'يبحث برقم القطعة أو اسمها، يرى توافقها مع سيارته، ويقارن عروض الموردين.', `السلة جاهزة بقطعتين لكامري 2021؛ اضغط «احجز القطع».`],
+      ['vendor.html', 'store', 'المورد', `${S[D.meta.demoSupplier].name}، ${S[D.meta.demoSupplier].branch}: يؤكد التوفر خلال 3 دقائق، يجهز ويصوّر، ويتابع رصيده.`, v ? `${fmt.count(v, ['طلب تحقق ينتظره', 'طلبا تحقق ينتظرانه', 'طلبات تحقق تنتظره', 'طلب تحقق ينتظره'])} الآن.` : 'لا طلبات تحقق الآن؛ تصل عندما يحجز العميل.'],
+      ['courier.html', 'truck', 'المندوب', 'يقبل مهمة واحدة، يمسح الملصق ويصوّر عند الاستلام، ويسلّم برمز من العميل.', `${fmt.count(jobs, ['مهمة جاهزة', 'مهمتان جاهزتان', 'مهام جاهزة', 'مهمة جاهزة'])} للاستلام.`],
+      ['admin.html', 'chart', 'الإدارة', 'ترى مسار الطلبات والاستثناءات وأداء الموردين، وتعتمد الموردين وربط الكتالوج.', 'ابدأ من «يحتاج قرارًا».'],
+    ];
+    return `<header class="top"><span class="brand">${U.mark()}<span>صامولة</span></span><span class="note">اسم مبدئي · عرض تفاعلي 0.1</span></header>
+      <section class="hero"><h1>قطع غيار من موردي الرياض، محجوزة قبل أن تدفع</h1>
+        <p>عرض لسوق قطع غيار متعدد الموردين بأربع واجهات تعمل على بيانات واحدة. ما تفعله في واجهة يظهر في الأخرى فورًا، حتى لو فتحتها في تبويب آخر.</p>
+        <div class="meta">${U.pill('بيانات اصطناعية', 'neutral')}${U.pill('دفع محاكى بلا بطاقات', 'neutral')}${U.pill('يعمل على الجوال والويب', 'neutral')}</div></section>
+      <div class="layout">
+        <nav class="roles" aria-label="الواجهات">${roles.map(([href, ic, name, desc, tryIt]) => `<a class="role" href="${href}"><span class="ico">${U.icon(ic)}</span><span><h2>${name}</h2><p>${desc}</p><p class="try">${tryIt}</p></span><span class="go">افتح ${U.icon('fwd')}</span></a>`).join('')}</nav>
+        <aside class="journey" aria-labelledby="j-h"><h2 id="j-h">جرّب الرحلة كاملة</h2>
+          <ol><li>في <b>العميل</b> افتح السلة واضغط «احجز القطع». قطعة تُحجز فورًا، والأخرى تنتظر المورد.</li>
+            <li>في <b>المورد</b> أكّد التوفر بعد أن تعزل القطعة. يتحدث تبويب العميل وحده.</li>
+            <li>ادفع (محاكاة). لا يُفتح الدفع قبل حجز كل القطع.</li>
+            <li>في <b>المورد</b> ابدأ التجهيز، صوّر الحزمة، ثم «جاهز للاستلام».</li>
+            <li>في <b>المندوب</b> اقبل المهمة، امسح الملصق وصوّر، ثم سلّم برمز العميل.</li>
+            <li>في <b>الإدارة</b> تابع الحدث في السجل والاستثناءات.</li></ol>
+          <div class="acts"><a class="btn round primary" href="live.html">${U.icon('grid')}عرض متزامن للأدوار الثلاثة</a></div>
+          <p class="small muted">على جهاز واحد؟ فعّل «رد المورد تلقائيًا» و«توصيل تلقائي» من حساب العميل.</p></aside>
+      </div>
+      <section class="data" aria-labelledby="d-h"><h2 id="d-h">من أين البيانات؟</h2>
+        <div class="cols">
+          <div><h3>المركبات</h3><p>أكثر السيارات مبيعًا في السعودية 2025: أكسنت، يارس، كامري، هايلكس، بيجاس، كورولا، وغيرها. التغطية محدودة بإحدى عشرة سيارة.</p></div>
+          <div><h3>القطع والعروض</h3><p>${D.parts.length} قطعة و${D.offers.length} عرضًا من ${D.suppliers.filter((s) => s.status === 'approved').length} موردين مختلقين. أرقام القطع بصيغة OEM حقيقية الشكل ولم تُطابق مع كتالوج مرخص؛ لا تُستخدم للشراء.</p></div>
+          <div><h3>للإنتاج لاحقًا</h3><ul><li>كتالوج مرخص يغطي الخليج (TecDoc أو ما يعادله) بعد اختبار عينة سيارات سعودية.</li><li>ملفات الموردين نفسها مصدرًا للأسعار والمخزون.</li><li>vPIC الأمريكي لفك الصيغة فقط؛ تغطيته لمواصفات الخليج محدودة.</li></ul></div>
+        </div></section>
+      <footer class="foot"><span>الوقت في العرض مضغوط · المهلة 3 دقائق والحجز 10 دقائق ورحلة المندوب 90 ثانية</span>
+        <span style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">${U.themeSeg()}<button class="btn round" type="button" data-reset>${U.icon('refresh')}أعد ضبط العرض</button></span></footer>`;
+  }
+  const render = U.renderer(root, page); Store.on(render); render();
+  root.addEventListener('click', (e) => { if (e.target.closest('[data-reset]')) { A.reset(); U.toast('أُعيد ضبط بيانات العرض'); } });
+})();
+</script>
+</body>
+</html>
